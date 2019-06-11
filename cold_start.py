@@ -72,21 +72,6 @@ def add_cluster_to_ratings(user_df):
     return ratings_df
 
 
-def cluster_rating(df, movie_id, cluster):
-    """Return the average rating for a movie, based on the cluster"""
-    cluster_rating = df[(df['movie_id'] == movie_id) & (df['cluster'] == cluster)]
-    return cluster_rating['rating'].mean()
-
-
-def user_bias(df, user_id):
-    """Calculate user bias: average rating for all users minus the users average rating"""
-    return  df.loc[df['user_id'] == user_id, 'rating'].mean() - df['rating'].mean()
-
-
-def item_bias(df, movie_id):
-    """Calculate item bias: average rating for all items minus the items average rating"""
-    return  df.loc[df['movie_id'] == movie_id, 'rating'].mean() - df['rating'].mean()
-
 
 def get_cold_start_rating(user_id, movie_id):
     """
@@ -99,27 +84,39 @@ def get_cold_start_rating(user_id, movie_id):
     returns
     -------
     movie rating (float)
+    If current user, current movie = average rating of movie by cluster
+    If current user, NOT current movie = average rating for cluster
+    If NOT current user, and current movie = average for the movie
+    If NOT current user, and NOT current movie = average for all ratings
     """
-    # Load files 
-    user_df = pd.read_csv('data/user_cluster.csv', index_col=0) 
-    u_clusters = pd.read_csv('data/u_info.csv', index_col=0)
-    ratings_df = pd.read_csv('data/movie_cluster_avg.csv', index_col=0)
-    
-    # User Cluster
-    user_cluster = u_clusters.loc[u_clusters['id'] == user_id]['cluster'].tolist()[0]
-    
-    # Get score components
-    if movie_id in ratings_df['movie_id'].tolist():
-        avg = ratings_df.loc[(ratings_df['cluster'] == user_cluster) & (ratings_df['movie_id'] == movie_id)]['rating'].tolist()
-    else:
-        cluster_rating = ratings_df.loc[ratings_df['cluster'] == user_cluster]['rating'].tolist()
-        avg = sum(cluster_rating)/len(cluster_rating)
         
-    if user_id in user_df['user_id'].tolist():
-        u = user_bias(user_df, user_id)
-        i = item_bias(user_df, movie_id)
-        pred_rating = avg + u + i
+    if user_id in u_info['id'].tolist():
+        if movie_id in ratings_df['movie_id'].tolist():
+            cluster = u_info.loc[u_info['id'] == user_id]['cluster'].tolist()[0]
+            cluster_df = ratings_df.loc[(ratings_df['cluster'] == cluster)]['rating']
+            cluster_avg = cluster_df.mean()
+        else:
+            cluster = u_info.loc[u_info['id'] == user_id]['cluster'].tolist()[0]
+            cluster_rating = ratings_df.loc[ratings_df['cluster'] == cluster]['rating'].tolist()
+            if len(cluster_rating) > 1:
+                cluster_avg = sum(cluster_rating)/len(cluster_rating)
+            else:
+                cluster_avg = cluster_rating[0]
+                
+        return cluster_avg 
+
     else:
-        pred_rating = avg
-    
-    return pred_rating
+        if movie_id in ratings_df['movie_id'].tolist():
+
+            movie_rating = ratings_df.loc[ratings_df['movie_id'] == movie_id]['rating'].tolist()
+
+            if len(movie_rating) > 1:
+                movie_avg = sum(movie_rating)/len(movie_rating)
+            else:
+                movie_avg = movie_rating[0]
+
+            return movie_avg
+
+        else:
+
+            return ratings_df['rating'].mean()
