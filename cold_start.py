@@ -109,8 +109,8 @@ def get_cold_start_rating(user_id, movie_id):
     user_cluster = u_clusters.loc[u_clusters['id'] == user_id]['cluster'].tolist()[0]
     
     # Get score components
-    if (movie_id in ratings_df['movie_id'].tolist()) & (user_cluster > 0):
-        avg = ratings_df.loc[(ratings_df['cluster'] == user_cluster) & (ratings_df['movie_id'] == movie_id)]['rating'].tolist()[0]
+    if movie_id in ratings_df['movie_id'].tolist():
+        avg = ratings_df.loc[(ratings_df['cluster'] == user_cluster) & (ratings_df['movie_id'] == movie_id)]['rating'].tolist()
     else:
         cluster_rating = ratings_df.loc[ratings_df['cluster'] == user_cluster]['rating'].tolist()
         avg = sum(cluster_rating)/len(cluster_rating)

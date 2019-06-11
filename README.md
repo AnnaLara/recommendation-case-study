@@ -19,3 +19,10 @@ Minimal requirements:
 4. Your repo must include multiple commits from each team member.
 
 
+Methodology:
+
+Starting with users dataframe featuring demographic information (categories including age group, gender, occupation, and zip code), we dropped zipcode and one-hot encoded the other categories. Then we used k-means clustering to generate 8 demographic clusters.  Each user was then associated with a cluster; which we connected as dictionaries with user_id for key and cluster for value.
+Using ratings dataframe (with user_id, movie_id, rating, and timestamp), we dropped the timestamp and added the cluster associated with the user_id. 
+This enabled us to take a given movie id and find its mean rating for each cluster.
+Finally, we built a user function that takes in user_id and movie_id which will check to see if the user has seen that movie. If not, it find that user's cluster and return the mean rating for that movie from other users in that cluster. 
+
