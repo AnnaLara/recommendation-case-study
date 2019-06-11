@@ -19,7 +19,7 @@ Minimal requirements:
 4. Your repo must include multiple commits from each team member.
 
 
-Methodology:
+## Methodology
 
 Starting with users dataframe featuring demographic information (categories including age group, gender, occupation, and zip code), we dropped zipcode and one-hot encoded the other categories. Then we used k-means clustering to generate 8 demographic clusters.  Each user was then associated with a cluster; which we connected as dictionaries with user_id for key and cluster for value.
 Using ratings dataframe (with user_id, movie_id, rating, and timestamp), we dropped the timestamp and added the cluster associated with the user_id. 
