@@ -131,7 +131,6 @@ def get_recommendation_for_user(uder_id):
 
     sorted_list = sorted(recommendation_list, key=lambda k: k['rating'], reverse=True) 
     return sorted_list[:10]
-
         
     if user_id in u_info['id'].tolist():
         if movie_id in ratings_df['movie_id'].tolist():
